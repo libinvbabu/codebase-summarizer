@@ -1,6 +1,6 @@
 {
   "schemaVersion": "3.0.0",
-  "generatedAt": "2025-06-13T07:29:02.905Z",
+  "generatedAt": "2025-06-13T08:17:13.552Z",
   "git": {
     "sha": null,
     "branch": null,
@@ -8,16 +8,31 @@
   },
   "modules": [],
   "services": {
-    "businessServices": [],
+    "businessServices": [
+      "NotificationService",
+      "OrderService",
+      "PaymentService"
+    ],
     "utilityServices": [
       "UtilityAnalyzer"
     ]
   },
   "apiRoutes": {
-    "publicRoutes": [],
-    "internalRoutes": []
+    "publicRoutes": [
+      "/orders",
+      "/orders/:id",
+      "/orders/:id/cancel",
+      "/orders/:id/status",
+      "/orders/my"
+    ],
+    "internalRoutes": [
+      "/admin/orders",
+      "/admin/orders/analytics"
+    ]
   },
-  "dbModels": [],
+  "dbModels": [
+    "Order"
+  ],
   "utils": {
     "byDomain": {
       "Date/Time": [
@@ -53,5 +68,154 @@
     "Middleware Pattern",
     "React Hooks",
     "TypeScript Interfaces"
-  ]
+  ],
+  "serviceDependencies": {
+    "OrderService": [
+      "AuditService",
+      "NotificationService",
+      "PaymentService",
+      "auditService",
+      "notificationService",
+      "paymentService"
+    ],
+    "NotificationService": [
+      "EmailService",
+      "PushNotificationService",
+      "PushService",
+      "SmsService",
+      "emailService",
+      "pushService",
+      "smsService"
+    ],
+    "PaymentService": [
+      "AuthService",
+      "PayPalService",
+      "PaypalService",
+      "StripeService",
+      "authService",
+      "paypalService",
+      "stripeService"
+    ]
+  },
+  "schemaSnapshots": {
+    "Order": {
+      "type": "String",
+      "required": "true",
+      "unique": "true"
+    }
+  },
+  "apiPayloads": {
+    "POST /orders": {
+      "request": {},
+      "response": {}
+    },
+    "GET /orders/my": {
+      "request": {},
+      "response": {}
+    },
+    "GET /orders/:orderId": {
+      "request": {},
+      "response": {}
+    },
+    "PATCH /orders/:orderId/status": {
+      "request": {},
+      "response": {}
+    },
+    "GET /admin/orders": {
+      "request": {},
+      "response": {}
+    },
+    "GET /admin/orders/analytics": {
+      "request": {},
+      "response": {}
+    },
+    "POST /orders/:orderId/cancel": {
+      "request": {},
+      "response": {}
+    }
+  },
+  "authPolicies": {},
+  "businessFlows": {
+    "NotificationService": {
+      "sendOrderConfirmation": [
+        "Call emailService.sendOrderConfirmation()",
+        "Call smsService.sendOrderSMS()",
+        "Send notification",
+        "Handle errors"
+      ],
+      "catch": [
+        "Handle errors"
+      ],
+      "sendStatusUpdate": [
+        "Call emailService.sendStatusUpdate()",
+        "Call smsService.sendStatusSMS()",
+        "Call pushService.sendStatusPush()",
+        "Send notification"
+      ]
+    },
+    "OrderService": {
+      "createOrder": [
+        "Validate input data",
+        "Call paymentService.processPayment()",
+        "Calculate",
+        "Process",
+        "Process payment",
+        "Handle errors"
+      ],
+      "catch": [
+        "Call auditService.logOrderError()"
+      ],
+      "updateOrderStatus": [
+        "Call notificationService.sendStatusUpdate()",
+        "Execute update query",
+        "Send notification"
+      ],
+      "validateOrderData": [
+        "Process payment",
+        "Handle errors"
+      ]
+    },
+    "PaymentService": {
+      "processPayment": [
+        "Validate input data",
+        "Call authService.validatePaymentAuth()",
+        "Call stripeService.chargeCard()",
+        "Call paypalService.processPayment()",
+        "Calculate",
+        "Process",
+        "Process payment",
+        "Handle errors"
+      ],
+      "switch": [
+        "Call stripeService.chargeCard()",
+        "Call paypalService.processPayment()",
+        "Process",
+        "Process payment",
+        "Handle errors"
+      ],
+      "catch": [
+        "Process payment"
+      ],
+      "refundPayment": [
+        "Process",
+        "Process payment"
+      ],
+      "validatePaymentData": [
+        "Process payment",
+        "Handle errors"
+      ],
+      "savePayment": [
+        "Process payment"
+      ],
+      "findPaymentById": [
+        "Process payment"
+      ],
+      "processRefund": [
+        "Process payment"
+      ],
+      "logPaymentError": [
+        "Process payment"
+      ]
+    }
+  }
 }

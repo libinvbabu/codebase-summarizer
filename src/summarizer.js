@@ -6,6 +6,12 @@ import { DbModelExtractor } from './dbModelExtractor.js';
 import { UtilityAnalyzer } from './utilityAnalyzer.js';
 import { PatternDetector } from './patternDetector.js';
 import { GitMetadata } from './gitMetadata.js';
+// New extractors
+import { ServiceInteractionExtractor } from './serviceInteractionExtractor.js';
+import { SchemaSnapshotExtractor } from './schemaSnapshotExtractor.js';
+import { PayloadExtractor } from './payloadExtractor.js';
+import { AuthPolicyExtractor } from './authPolicyExtractor.js';
+import { BusinessLogicFlowExtractor } from './businessLogicFlowExtractor.js';
 
 export class Summarizer {
   constructor(config) {
@@ -35,7 +41,13 @@ export class Summarizer {
         frontend: '',
         backend: ''
       },
-      globalPatterns: []
+      globalPatterns: [],
+      // 🆕 New deep metadata fields
+      serviceDependencies: {},
+      schemaSnapshots: {},
+      apiPayloads: {},
+      authPolicies: {},
+      businessFlows: {}
     };
   }
 
@@ -56,7 +68,10 @@ export class Summarizer {
     this.summary.apiRoutes = apiSummary;
 
     const models = new DbModelExtractor(this.projectRoot, this.limit);
-    this.summary.dbModels = await models.extract();
+    const modelSummary = await models.extract();
+    // Enhanced: Handle both model names and schemas
+    this.summary.dbModels = modelSummary.models || modelSummary;
+    this.summary.schemaSnapshots = modelSummary.schemas || {};
 
     const utils = new UtilityAnalyzer(this.projectRoot, this.limit);
     const utilSummary = await utils.extract();
@@ -64,6 +79,30 @@ export class Summarizer {
 
     const patterns = new PatternDetector(this.projectRoot, frameworks.dependencies);
     this.summary.globalPatterns = await patterns.extract();
+
+    // 🆕 New deep metadata extraction
+    console.log('🔗 Analyzing service interactions...');
+    const serviceInteractions = new ServiceInteractionExtractor(this.projectRoot, this.limit);
+    this.summary.serviceDependencies = await serviceInteractions.extract();
+
+    console.log('📦 Extracting API payloads...');
+    const payloads = new PayloadExtractor(this.projectRoot, this.limit);
+    this.summary.apiPayloads = await payloads.extract();
+
+    console.log('🔐 Analyzing authentication policies...');
+    const authPolicies = new AuthPolicyExtractor(this.projectRoot, this.limit);
+    this.summary.authPolicies = await authPolicies.extract();
+
+    console.log('🔄 Extracting business logic flows...');
+    const businessFlows = new BusinessLogicFlowExtractor(this.projectRoot, this.limit);
+    this.summary.businessFlows = await businessFlows.extract();
+
+    // If we don't have schema snapshots from models, try the dedicated extractor
+    if (Object.keys(this.summary.schemaSnapshots).length === 0) {
+      console.log('🗂️ Extracting additional model schemas...');
+      const schemaSnapshots = new SchemaSnapshotExtractor(this.projectRoot, this.limit);
+      this.summary.schemaSnapshots = await schemaSnapshots.extract();
+    }
 
     this.applyLimits();
 
