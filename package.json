@@ -1,0 +1,12 @@
+{
+  "name": "codebase-summarizer-action",
+  "version": "2.0.0",
+  "description": "Generate production-grade codebase summary for AI code review",
+  "main": "generate-codebase-summary.js",
+  "scripts": {
+    "start": "node generate-codebase-summary.js"
+  },
+  "dependencies": {
+    "fast-glob": "^3.3.1"
+  }
+}

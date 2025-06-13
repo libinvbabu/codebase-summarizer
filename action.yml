@@ -1,0 +1,14 @@
+name: 'Codebase Summarizer'
+description: 'Generate a production-grade codebase summary for AI code reviews'
+author: 'Your Name'
+branding:
+  icon: 'file-text'
+  color: 'blue'
+inputs:
+  output-file:
+    description: 'Output file path'
+    required: false
+    default: 'code-review-summary.json'
+runs:
+  using: 'node20'
+  main: 'generate-codebase-summary.js'
