@@ -1,14 +1,20 @@
-name: 'Codebase Summarizer'
-description: 'Generate a production-grade codebase summary for AI code reviews'
-author: 'Your Name'
+name: 'Codebase Summary Bot'
+description: 'LLM-optimized codebase summarizer for AI code review pipelines, agents, and onboarding.'
+author: 'Libin V Babu <www.libin.in>'
 branding:
-  icon: 'file-text'
+  icon: 'code'
   color: 'blue'
+
 inputs:
-  output-file:
-    description: 'Output file path'
+  output:
+    description: 'Output file path for the codebase summary JSON'
     required: false
-    default: 'code-review-summary.json'
+    default: 'codebase-summary.json'
+  limit:
+    description: 'Max items per category (default: 100)'
+    required: false
+    default: '100'
+
 runs:
   using: 'node20'
-  main: 'generate-codebase-summary.js'
+  main: 'index.js'
